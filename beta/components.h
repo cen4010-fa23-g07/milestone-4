@@ -12,5 +12,8 @@
 
 // custom compenents
 
+// string to TCHAR
+void string_2_TCHAR(std::string *, TCHAR *, const int);
+
 // la_step solves one step of a given solution vector<string>.
 void la_step(std::vector<std::string>* solution); 

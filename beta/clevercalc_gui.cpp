@@ -1171,25 +1171,20 @@ void DRAW_LA(HDC hdc, _In_ HWND   hWnd)
 	
 	// the solWnd will display the solution text.
 	HWND solWnd = FindWindowExW(hWnd, genWnd, NULL, NULL);
+	// https://learn.microsoft.com/en-us/windows/win32/controls/edit-controls
+	// here we edit the text in the solution window
+
+	const int tcharsize = 100;
+	TCHAR test_string_tchar[tcharsize];
+	std::string test_string = "some test\nhurray text on multiple lines!";
+	string_2_TCHAR(&test_string, test_string_tchar, tcharsize);
+	Edit_SetText(solWnd, test_string_tchar);
+
+
 	ShowWindow(solWnd, // window handle
 		SW_NORMAL);
 	UpdateWindow(solWnd);
-
-	// taking break here to upload some of this stuff stuff.
-	// this feels like a not fun way to do this. gonna come up with something better.
-	/*
-	RECT solutionBox;
-	GetWindowRect(solWnd, &solutionBox);
-	TCHAR text_solutionBox[] = _T("following this text should be y=mx+b (TEST)"); // TEST
-	DrawTextExW( //https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-drawtextexw
-		hdc, // handle
-		text_solutionBox,// text
-		(-1), // text length -1 to find null terminator
-		&solutionBox, // refrence rect to contain text
-		DT_TOP, // parameters
-		NULL // extra params
-	);
-	*/
+	
 
 	UpdateWindow(hWnd);
 }
@@ -1322,7 +1317,7 @@ void createLAWnds(HWND hWnd, _In_ int nCmdShow)
 		WS_EX_LEFT,
 		WC_STATIC, 
 		CCsolution, // text in window
-		WS_BORDER | WS_CHILD | WS_VSCROLL | SS_CENTER, // style
+		WS_BORDER | WS_CHILD | WS_VSCROLL | SS_CENTER | SS_EDITCONTROL, // style
 		(W_CENTER - 325),
 		120, // TODO: something cleaner
 		650,
