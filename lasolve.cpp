@@ -25,20 +25,28 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 			//cout << "i is " << i << endl;
 			//cout << "label eq size is " << label_eq.size() << endl;
 			//cout << "label is " << label_eq[i] << endl;
-			if (label_eq[i].find("+") != string::npos) {
+			if (label_eq[i].find("+") != string::npos || label_eq[i].find("-") != string::npos) {
 				//cout << "entered +" << endl;
 				// if const + const or var + var
 				if (label_eq[i - 1] == label_eq[i + 1]) {
 					float el1 = stof(token_eq[i - 1]);
 					float el2 = stof(token_eq[i + 1]);
-					float result = el1 + el2;
+					float result;
+					if (label_eq[i].find("+") != string::npos) {
+						result = el1 + el2;
+						step_type = "+op";
+					}
+					else {
+						result = el1 - el2;
+						step_type = "-op";
+					}
 					step_result = to_string(result);
 					// if var, append variable to end of result
 					if (label_eq[i - 1] == "var") {
 						step_result += "x";
 					}
 					step_position = i;
-					step_type = "+op";
+					
 					step_completed = true;
 					break;
 				}
@@ -134,7 +142,7 @@ vector<string> create_new_labels(vector<string> token_eq) {
 int main()
 {
 	
-	string orig_eq = "12x + 16x = 15 + 15";
+	string orig_eq = "12x - 16x = 15 + 15";
 	char delim = ' ';
 	stringstream ss(orig_eq);
 
