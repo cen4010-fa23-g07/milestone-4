@@ -13,7 +13,10 @@
 // custom compenents
 
 // string to TCHAR
-void string_2_TCHAR(std::string *, TCHAR *, const int);
+void string2TCHAR(std::string *, TCHAR *, const int); // string, output TCHAR, and then its size
 
-// la_step solves one step of a given solution vector<string>.
-void la_step(std::vector<std::string>* solution); 
+// TCHAR to string
+void TCHAR2String(TCHAR*, const int, std::string*); // TCHAR, its size, and then output string
+
+// la_step solves one step of a given solution vector<string>. returns true if its the last step.
+bool laStep(std::vector<std::string>* solution);

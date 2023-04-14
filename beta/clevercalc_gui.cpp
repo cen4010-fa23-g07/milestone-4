@@ -22,7 +22,8 @@ const static int W_WIDTH = 900; // window width
 const static int W_HIGHT = 900; // window hight
 const static int W_CENTER = 450;
 const static int W_SPACING = 5;
-
+const static int TCHAR_MAX = 500;
+const static int TCHAR_SMALL = 100;
 
 // Application State https://learn.microsoft.com/en-us/windows/win32/learnwin32/managing-application-state-/
 // this struct defines what will qualify as state information
@@ -31,15 +32,18 @@ struct StateInfo {
 	page currentPage;
 	// TODO, add more info as need.
 	// fod example: user login info.
+	std::vector<std::string> currentProblem;
 };
 
+//void update
 
 
-// window titles for finding windows
+
+// !! these are the windows creation, hideing, and drawing functions
 
 // START: HOMEPAGE
 // draws the home page when called from WM_PAINT
-void DRAW_HomePage(	HDC hdc , _In_ HWND   hWnd)
+void DrawHomePage(	HDC hdc , _In_ HWND   hWnd)
 {
 	TCHAR CCtitle[] = _T("CleverCalc");
 	RECT title;
@@ -123,7 +127,7 @@ void DRAW_HomePage(	HDC hdc , _In_ HWND   hWnd)
 }
 
 // creates windows needed to display home page.
-void createHomeWnds(HWND hWnd, _In_ int nCmdShow)
+void CreateHomeWnds(HWND hWnd, _In_ int nCmdShow)
 {
 	// text box https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowa
 	int inputWidth = 300;
@@ -281,7 +285,7 @@ void createHomeWnds(HWND hWnd, _In_ int nCmdShow)
 }
 
 // hides homepage windows
-void HIDE_HomePage(_In_ HWND   hWnd)
+void HideHomePage(_In_ HWND   hWnd)
 {
 	HWND usernameWnd = FindWindowExW(hWnd, NULL, NULL, NULL);
 	
@@ -320,7 +324,7 @@ void HIDE_HomePage(_In_ HWND   hWnd)
 
 // START: Create Account
 // draws the register page when called from WM_PAINT
-void DRAW_Register(HDC hdc, _In_ HWND   hWnd)
+void DrawRegister(HDC hdc, _In_ HWND   hWnd)
 {
 	TCHAR CCtitle[] = _T("CleverCalc");
 	RECT title;
@@ -437,7 +441,7 @@ void DRAW_Register(HDC hdc, _In_ HWND   hWnd)
 }
 
 // creates windows needed to display Register page.
-void createRegisterWnds(HWND hWnd, _In_ int nCmdShow)
+void CreateRegisterWnds(HWND hWnd, _In_ int nCmdShow)
 {
 	// probably bad practice: a blank empty window with a searchable title so when finding windows from the draw function, we can start from this point.
 	TCHAR CCregister[] = _T("reg");
@@ -616,7 +620,7 @@ void createRegisterWnds(HWND hWnd, _In_ int nCmdShow)
 }
 
 // hides Register windows
-void HIDE_Register(_In_ HWND   hWnd)
+void HideRegister(_In_ HWND   hWnd)
 {
 	TCHAR CCregister[] = _T("reg");
 	HWND regWnd = FindWindowExW(hWnd, NULL, NULL, CCregister);
@@ -656,7 +660,7 @@ void HIDE_Register(_In_ HWND   hWnd)
 
 // START: Forgot Password
 // draws the Forgot page when called from WM_PAINT
-void DRAW_Forgot(HDC hdc, _In_ HWND   hWnd)
+void DrawForgot(HDC hdc, _In_ HWND   hWnd)
 {
 	TCHAR CCtitle[] = _T("CleverCalc");
 	RECT title;
@@ -730,7 +734,7 @@ void DRAW_Forgot(HDC hdc, _In_ HWND   hWnd)
 }
 
 // creates windows needed to display Forgot page.
-void createForgotWnds(HWND hWnd, _In_ int nCmdShow)
+void CreateForgotWnds(HWND hWnd, _In_ int nCmdShow)
 {
 	// probably bad practice: a blank empty window with a searchable title so when finding windows from the draw function, we can start from this point.
 	TCHAR CCregister[] = _T("forgot");
@@ -844,7 +848,7 @@ void createForgotWnds(HWND hWnd, _In_ int nCmdShow)
 }
 
 // hides Forgot windows
-void HIDE_Forgot(_In_ HWND   hWnd)
+void HideForgot(_In_ HWND   hWnd)
 {
 	TCHAR forgot[] = _T("forgot");
 	HWND forgotWnd = FindWindowExW(hWnd, NULL, NULL, forgot);
@@ -872,7 +876,7 @@ void HIDE_Forgot(_In_ HWND   hWnd)
 
 // START: Main Menu
 // draws the main menu when called from WM_PAINT
-void DRAW_MainMenu(HDC hdc, _In_ HWND   hWnd)
+void DrawMainMenu(HDC hdc, _In_ HWND   hWnd)
 {
 
 	TCHAR CCtitle[] = _T("CleverCalc");
@@ -922,7 +926,7 @@ void DRAW_MainMenu(HDC hdc, _In_ HWND   hWnd)
 }
 
 // creates windows needed to display home page.
-void createMainMenuWnds(HWND hWnd, _In_ int nCmdShow)
+void CreateMainMenuWnds(HWND hWnd, _In_ int nCmdShow)
 {
 	// probably bad practice: a blank empty window with a searchable title so when finding windows from the draw function, we can start from this point.
 	TCHAR mainmenu[] = _T("mainmenu");
@@ -1065,7 +1069,7 @@ void createMainMenuWnds(HWND hWnd, _In_ int nCmdShow)
 }
 
 // hides main menu windows
-void HIDE_MainMenu(_In_ HWND   hWnd)
+void HideMainMenu(_In_ HWND   hWnd)
 {
 	TCHAR mainmenu[] = _T("mainmenu");
 	HWND mainmenuWnd = FindWindowExW(hWnd, NULL, NULL, mainmenu); // start from here
@@ -1099,7 +1103,7 @@ void HIDE_MainMenu(_In_ HWND   hWnd)
 
 // START: Linear Algebra
 // draws the Linear Algebra page when called from WM_PAINT
-void DRAW_LA(HDC hdc, _In_ HWND   hWnd)
+void DrawLA(HDC hdc, _In_ HWND   hWnd)
 {
 	TCHAR CCtitle[] = _T("CleverCalc");
 	RECT title;
@@ -1171,16 +1175,6 @@ void DRAW_LA(HDC hdc, _In_ HWND   hWnd)
 	
 	// the solWnd will display the solution text.
 	HWND solWnd = FindWindowExW(hWnd, genWnd, NULL, NULL);
-	// https://learn.microsoft.com/en-us/windows/win32/controls/edit-controls
-	// here we edit the text in the solution window
-
-	const int tcharsize = 100;
-	TCHAR test_string_tchar[tcharsize];
-	std::string test_string = "some test\nhurray text on multiple lines!";
-	string_2_TCHAR(&test_string, test_string_tchar, tcharsize);
-	Edit_SetText(solWnd, test_string_tchar);
-
-
 	ShowWindow(solWnd, // window handle
 		SW_NORMAL);
 	UpdateWindow(solWnd);
@@ -1190,7 +1184,7 @@ void DRAW_LA(HDC hdc, _In_ HWND   hWnd)
 }
 
 // creates windows needed to display Linear Algebra page.
-void createLAWnds(HWND hWnd, _In_ int nCmdShow)
+void CreateLAWnds(HWND hWnd, _In_ int nCmdShow)
 {
 	// probably bad practice: a blank empty window with a searchable title so when finding windows from the draw function, we can start from this point.
 	TCHAR CCregister[] = _T("la");
@@ -1209,7 +1203,7 @@ void createLAWnds(HWND hWnd, _In_ int nCmdShow)
 		NULL
 	);
 
-	// text box https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowa
+	// text box https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowexw
 	int inputWidth = 650;
 	int inputHight = 20;
 	static TCHAR CCeq[] = _T("Enter Equation Here.");
@@ -1312,7 +1306,7 @@ void createLAWnds(HWND hWnd, _In_ int nCmdShow)
 		NULL
 	);
 
-	static TCHAR CCsolution[] = _T("Future Solution Window.");
+	static TCHAR CCsolution[] = _T("Solution Window.");
 	HWND solWnd = CreateWindowExW(
 		WS_EX_LEFT,
 		WC_STATIC, 
@@ -1402,7 +1396,7 @@ void createLAWnds(HWND hWnd, _In_ int nCmdShow)
 }
 
 // hides Linear Algebra windows
-void HIDE_LA(_In_ HWND   hWnd)
+void HideLA(_In_ HWND   hWnd)
 {
 	TCHAR la[] = _T("la");
 	HWND laWnd = FindWindowExW(hWnd, NULL, NULL, la);
@@ -1444,11 +1438,40 @@ void HIDE_LA(_In_ HWND   hWnd)
 
 	UpdateWindow(hWnd);
 }
+
+// updates a solution window using a vector string containing desired update text.
+void UpdateSolutionWnd(HWND hWnd, std::vector<std::string> * pInput)
+{
+	TCHAR finalOutput[TCHAR_MAX];
+	int tcharIndex = 0;
+	for (int i = 0; i < pInput->size() && tcharIndex < TCHAR_MAX; i++)
+	{
+		for (int j = 0; j < pInput->at(i).length() && tcharIndex < TCHAR_MAX; j++)
+		{
+			finalOutput[tcharIndex] = pInput->at(i)[j]; // copy over each character from each line over to a single tchar.
+			tcharIndex++;
+		}
+		finalOutput[tcharIndex] = '\n'; // new line for next input
+		tcharIndex++;
+	} 
+
+	// insert null terminator
+	if (TCHAR_MAX > tcharIndex)
+	{
+		finalOutput[tcharIndex] = '\0'; // if the input length is less than the TCHAR size, insernt the null terminator at the end of the copied string
+	}
+	else
+	{
+		finalOutput[TCHAR_MAX - 1] = '\0'; // if the input was cut off, or filled the entire TCHAR, then insert the terminator at the end of the TCHAR
+	}
+	SetWindowText(hWnd, finalOutput);
+}
+
 // END: Linear Algebra
 
 // START: Systems of Equations
 // draws the Systems of Equations page when called from WM_PAINT
-void DRAW_SoE(HDC hdc, _In_ HWND   hWnd)
+void DrawSoE(HDC hdc, _In_ HWND   hWnd)
 {
 	TCHAR CCtitle[] = _T("CleverCalc");
 	RECT title;
@@ -1526,7 +1549,7 @@ void DRAW_SoE(HDC hdc, _In_ HWND   hWnd)
 }
 
 // creates windows needed to display Systems of Equations page.
-void createSoEWnds(HWND hWnd, _In_ int nCmdShow)
+void CreateSoEWnds(HWND hWnd, _In_ int nCmdShow)
 {
 	// probably bad practice: a blank empty window with a searchable title so when finding windows from the draw function, we can start from this point.
 	TCHAR CCregister[] = _T("soeq");
@@ -1738,7 +1761,7 @@ void createSoEWnds(HWND hWnd, _In_ int nCmdShow)
 }
 
 // hides stats windows
-void HIDE_SoE(_In_ HWND   hWnd)
+void HideSoE(_In_ HWND   hWnd)
 {
 	TCHAR soeq[] = _T("soeq");
 	HWND soeWnd = FindWindowExW(hWnd, NULL, NULL, soeq);
@@ -1784,7 +1807,7 @@ void HIDE_SoE(_In_ HWND   hWnd)
 
 // START: stats
 // draws the Systems of Equations page when called from WM_PAINT
-void DRAW_Stats(HDC hdc, _In_ HWND   hWnd)
+void DrawStats(HDC hdc, _In_ HWND   hWnd)
 {
 	TCHAR CCtitle[] = _T("CleverCalc");
 	RECT title;
@@ -1863,7 +1886,7 @@ void DRAW_Stats(HDC hdc, _In_ HWND   hWnd)
 }
 
 // creates windows needed to display stats page.
-void createStatsWnds(HWND hWnd, _In_ int nCmdShow)
+void CreateStatsWbds(HWND hWnd, _In_ int nCmdShow)
 {
 	// probably bad practice: a blank empty window with a searchable title so when finding windows from the draw function, we can start from this point.
 	TCHAR CCs[] = _T("statistics"); // each of these is based of the length, not contents of the string, due to how FindWindowExW works. idk why.
@@ -2053,7 +2076,7 @@ void createStatsWnds(HWND hWnd, _In_ int nCmdShow)
 }
 
 // hides stats windows
-void HIDE_Stats(_In_ HWND   hWnd)
+void HideStats(_In_ HWND   hWnd)
 {
 	TCHAR stats[] = _T("statistics");
 	HWND sWnd = FindWindowExW(hWnd, NULL, NULL, stats);
@@ -2135,25 +2158,25 @@ LRESULT CALLBACK WndProc(
 		switch (state->currentPage)
 		{
 		case state->home:
-			DRAW_HomePage(hdc, hWnd);
+			DrawHomePage(hdc, hWnd);
 			break;
 		case state->createAcc:
-			DRAW_Register(hdc, hWnd);
+			DrawRegister(hdc, hWnd);
 			break;
 		case state->forgotPass:
-			DRAW_Forgot(hdc, hWnd);
+			DrawForgot(hdc, hWnd);
 			break;
 		case state->mainMenu:
-			DRAW_MainMenu(hdc, hWnd);
+			DrawMainMenu(hdc, hWnd);
 			break;
 		case state->linAlgebra:
-			DRAW_LA(hdc, hWnd);
+			DrawLA(hdc, hWnd);
 			break;
 		case state->sysEquations:
-			DRAW_SoE(hdc, hWnd);
+			DrawSoE(hdc, hWnd);
 			break;
 		case state->stats:
-			DRAW_Stats(hdc, hWnd);
+			DrawStats(hdc, hWnd);
 			break;
 		}		
 		
@@ -2178,19 +2201,19 @@ LRESULT CALLBACK WndProc(
 				if (button == forgotWnd)
 				{
 					state->currentPage = state->forgotPass;
-					HIDE_HomePage(hWnd);
+					HideHomePage(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
 				}
 				else if (button == loginWnd) // if login button was clicked, change state to main menu.
 				{
 					state->currentPage = state->mainMenu;
-					HIDE_HomePage(hWnd); // in this case, a state change occured so the homepage windows will be removed.
+					HideHomePage(hWnd); // in this case, a state change occured so the homepage windows will be removed.
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
 				} 
 				else if (button == registerWnd)
 				{
 					state->currentPage = state->createAcc;
-					HIDE_HomePage(hWnd);
+					HideHomePage(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
 				}
 			}
@@ -2208,7 +2231,7 @@ LRESULT CALLBACK WndProc(
 				if (button == registerWnd)
 				{
 					state->currentPage = state->home;
-					HIDE_Register(hWnd);
+					HideRegister(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
 				}
 			}
@@ -2226,7 +2249,7 @@ LRESULT CALLBACK WndProc(
 				if (button == recoverWnd)
 				{
 					state->currentPage = state->home;
-					HIDE_Forgot(hWnd);
+					HideForgot(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
 				}
 				
@@ -2244,25 +2267,25 @@ LRESULT CALLBACK WndProc(
 				if (button == linear_algebraWnd)
 				{
 					state->currentPage = state->linAlgebra;
-					HIDE_MainMenu(hWnd);
+					HideMainMenu(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
 				}
 				else if (button == system_equationsWnd)
 				{
 					state->currentPage = state->sysEquations;
-					HIDE_MainMenu(hWnd);
+					HideMainMenu(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
 				}
 				else if (button == statsWnd)
 				{
 					state->currentPage = state->stats;
-					HIDE_MainMenu(hWnd);
+					HideMainMenu(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
 				}
 				else if (button == logoutWnd)
 				{
 					state->currentPage = state->home;
-					HIDE_MainMenu(hWnd);
+					HideMainMenu(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
 				}
 
@@ -2284,8 +2307,44 @@ LRESULT CALLBACK WndProc(
 				if (button == backWnd)
 				{
 					state->currentPage = state->mainMenu;
-					HIDE_LA(hWnd);
+					state->currentProblem.clear(); // clears the current problem from the program state
+					std::vector<std::string> clean = { "Solution Window." };
+					UpdateSolutionWnd(solWnd, &clean);
+					HideLA(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
+				}
+				else if (button == solveWnd)
+				{
+					TCHAR solTCHAR[TCHAR_SMALL];
+					GetWindowTextW(eqWnd, solTCHAR, TCHAR_SMALL);
+					state->currentProblem.clear();
+					state->currentProblem.push_back("");
+					TCHAR2String(solTCHAR, TCHAR_SMALL, &(state->currentProblem[0]));
+					bool solved = false;
+					while (!solved)
+					{
+						solved = laStep(&state->currentProblem);
+						break; // used until laStep gets a full implementation.
+					}
+					UpdateSolutionWnd(solWnd, &state->currentProblem);
+				}
+				else if (button == stepWnd)
+				{
+					TCHAR solTCHAR[TCHAR_SMALL];
+					std::string inputWndText;
+					GetWindowTextW(eqWnd, solTCHAR, TCHAR_SMALL);
+					TCHAR2String(solTCHAR, TCHAR_SMALL, &inputWndText);
+					if (state->currentProblem.size() == 0)
+					{
+						state->currentProblem.push_back(inputWndText); // if there is no equation, fill the current problem
+					}
+					else if (inputWndText.compare(state->currentProblem[0]) != 0)
+					{
+						state->currentProblem.clear();
+						state->currentProblem.push_back(inputWndText);
+					} // if the equation changed, clear the current problem		
+					laStep(&state->currentProblem);
+					UpdateSolutionWnd(solWnd, &state->currentProblem);
 				}
 			}
 				break;
@@ -2305,13 +2364,13 @@ LRESULT CALLBACK WndProc(
 				if (button == backWnd)
 				{
 					state->currentPage = state->mainMenu;
-					HIDE_SoE(hWnd);
+					HideSoE(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
 				}
 			}
 				break;
 			case state->stats:
-
+			{
 				HWND button = reinterpret_cast<HWND>(lParam);
 				TCHAR stats[] = _T("statistics");
 				HWND sWnd = FindWindowExW(hWnd, NULL, NULL, stats);
@@ -2326,10 +2385,10 @@ LRESULT CALLBACK WndProc(
 				if (button == backWnd)
 				{
 					state->currentPage = state->mainMenu;
-					HIDE_Stats(hWnd);
+					HideStats(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
 				}
-
+			}
 				break;
 			}
 		}
@@ -2430,13 +2489,13 @@ int WINAPI WinMain(
 		nCmdShow); // winmain parameter
 	UpdateWindow(hWnd);
 
-	createHomeWnds(hWnd, nCmdShow);
-	createMainMenuWnds(hWnd, nCmdShow);
-	createRegisterWnds(hWnd, nCmdShow);
-	createForgotWnds(hWnd, nCmdShow);
-	createLAWnds(hWnd, nCmdShow);
-	createSoEWnds(hWnd, nCmdShow);
-	createStatsWnds(hWnd, nCmdShow);
+	CreateHomeWnds(hWnd, nCmdShow);
+	CreateMainMenuWnds(hWnd, nCmdShow);
+	CreateRegisterWnds(hWnd, nCmdShow);
+	CreateForgotWnds(hWnd, nCmdShow);
+	CreateLAWnds(hWnd, nCmdShow);
+	CreateSoEWnds(hWnd, nCmdShow);
+	CreateStatsWbds(hWnd, nCmdShow);
 
 	// message loop
 	MSG msg;
