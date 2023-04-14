@@ -20,15 +20,18 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 	while (!step_completed) {
 		cout << "got to while" << endl;
 		for (int i = 0; i < token_eq.size(); i++) {
-			if (label_eq[i].find("+") != string::npos) {
+			if (label_eq[i].find("+") != string::npos) 
+			{
 				// if const + const or var + var
-				if (label_eq[i - 1] == label_eq[i + 1]) {
+				if (label_eq[i - 1] == label_eq[i + 1]) 
+				{
 					float el1 = stof(token_eq[i - 1]);
 					float el2 = stof(token_eq[i + 1]);
 					float result = el1 + el2;
 					step_result = to_string(result);
 					// if var, append variable to end of result
-					if (label_eq[i - 1] == "var") {
+					if (label_eq[i - 1] == "var") 
+					{
 						step_result += "x";
 					}
 					step_position = i;
@@ -38,13 +41,15 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 			}
 			else if (label_eq[i].find("-") != string::npos)
 			{
-				if (label_eq[i - 1] == label_eq[i + 1]) {
+				if (label_eq[i - 1] == label_eq[i + 1]) 
+				{
 					float el1 = stof(token_eq[i - 1]);
 					float el2 = stof(token_eq[i + 1]);
 					float result = el1 - el2;
 					step_result = to_string(result);
 					// if var, append variable to end of result
-					if (label_eq[i - 1] == "var") {
+					if (label_eq[i - 1] == "var") 
+					{
 						step_result += "x";
 					}
 					step_position = i;
@@ -52,16 +57,36 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 					step_completed = true;
 				}
 			}
+			else if (label_eq.find("-") != string::npos) 
+			{
+					if (label_eq[i].find("=") != string::npos)
+					{
+						// if const var = const  
+						if (label_eq[i - 1] == "var" && label_eq[i + 1] == "const")
+						{
+							float el1 = stof(token_eq[i - 1]);
+							float el2 = stof(token_eq[i + 1]);
+							float result = el2 / el1;
+							step_result = to_string(result);
 
-		} // end of token_eq for
-	} // end of while !step_completed
+
+							step_position = i;
+							step_type = "=op";
+							step_completed = true;
+						}// END OF IF
+					}// END OF IF
+				
+			}//END OF ELSE IF
+
+		}// END OF FOR LOOP
+	}//END OF WHILE LOOP 
 
 	cout << "finished while " << endl;
 
 	vector<string> new_token_eq = create_new_eq(token_eq, step_position, step_type, step_result);
 	return new_token_eq;
 	//vector<string> new_labels_eq = create_new_labels(new_token_eq);
-}
+}// END OF FUNCTION
 
 vector<string> create_new_eq(vector<string> orig_token_eq, int pos, string type, string result) {
 	cout << "began creation" << endl;
@@ -116,33 +141,7 @@ vector<string> create_new_labels(vector<string> token_eq) {
 	return labels;
 }
 
-vector<string> final_step(vector < string>token_eq, vector<string>label_eq) {
-	int step_position;
-	string step_type;
-	string step_result;
-	bool step_completed = false;
-	while (!step_completed) {
-		cout << "got to while" << endl;
-		for (int i = 0; i < token_eq.size(); i++) {
-			if (label_eq[i].find("=") != string::npos) {
-				// if const var = const  
-				if (label_eq[i - 1] == "var" && label_eq[i + 1] == "const") {
-					float el1 = stof(token_eq[i - 1]);
-					float el2 = stof(token_eq[i + 1]);
-					float result = el2 / el1;
-					step_result = to_string(result);
 
-
-					step_position = i;
-					step_type = "=op";
-					step_completed = true;
-				}
-			} // end of =op
-		} // end of token_eq for
-	}
-	cout << "finished while" << endl;
-	vector<string> new_token_eq = create_new_eq(token_eq, step_position, step_type, step_result);
-	return new_token_eq;
 }
 int main()
 {
