@@ -16,7 +16,7 @@
 
 // required for creating window
 static TCHAR szWindowClass[] = _T("CleverCalc");
-static TCHAR szTitle[] = _T("CleverCalc equation solver.");
+static TCHAR szTitle[] = _T("CleverCalc equation solver. (BETA)");
 
 const static int W_WIDTH = 900; // window width
 const static int W_HIGHT = 900; // window hight
@@ -29,7 +29,7 @@ const static int TCHAR_SMALL = 100;
 // this struct defines what will qualify as state information
 struct StateInfo {
 	enum page { home, createAcc, forgotPass, mainMenu, linAlgebra, sysEquations, stats }; // current application page
-	page currentPage;
+	page currentPage = home;
 	// TODO, add more info as need.
 	// fod example: user login info.
 	std::vector<std::string> currentProblem;
@@ -110,15 +110,15 @@ void DrawHomePage(	HDC hdc , _In_ HWND   hWnd)
 	
 	ShowWindow(forgotWnd, // window handle
 		SW_NORMAL); 
+	EnableWindow(forgotWnd, false); // TODO: remove when functionality for this window is created.
 	UpdateWindow(forgotWnd);
 
 	HWND loginWnd = FindWindowExW(hWnd, forgotWnd, NULL, NULL);
-	
 	ShowWindow(loginWnd, // window handle
 		SW_NORMAL); 
 
 	HWND registertWnd = FindWindowExW(hWnd, loginWnd, NULL, NULL);
-	
+	EnableWindow(registertWnd, false); // TODO: remove when functionality for this window is created.
 	ShowWindow(registertWnd, // window handle
 		SW_NORMAL);
 
@@ -906,13 +906,12 @@ void DrawMainMenu(HDC hdc, _In_ HWND   hWnd)
 	UpdateWindow(linear_algebraWnd);
 
 	HWND system_equationsWnd = FindWindowExW(hWnd, linear_algebraWnd, NULL, NULL);
-	
 	ShowWindow(system_equationsWnd, // window handle
 		SW_NORMAL); 
 	UpdateWindow(system_equationsWnd);
 
 	HWND statsWnd = FindWindowExW(hWnd, system_equationsWnd, NULL, NULL);
-	
+	EnableWindow(statsWnd, false); // TODO: remove when functionality for this window is created.
 	ShowWindow(statsWnd, // window handle
 		SW_NORMAL); 
 	UpdateWindow(statsWnd);
@@ -1165,11 +1164,13 @@ void DrawLA(HDC hdc, _In_ HWND   hWnd)
 	HWND quizWnd = FindWindowExW(hWnd, stepWnd, NULL, NULL);
 	ShowWindow(quizWnd, // window handle
 		SW_NORMAL);
+	EnableWindow(quizWnd, false); // TODO: remove when functionality for this window is created.
 	UpdateWindow(quizWnd);
 
 	HWND genWnd = FindWindowExW(hWnd, quizWnd, NULL, NULL);
 	ShowWindow(genWnd, // window handle
 		SW_NORMAL);
+	EnableWindow(genWnd, false); // TODO: remove when functionality for this window is created.
 	UpdateWindow(genWnd);
 
 	
@@ -1311,7 +1312,7 @@ void CreateLAWnds(HWND hWnd, _In_ int nCmdShow)
 		WS_EX_LEFT,
 		WC_STATIC, 
 		CCsolution, // text in window
-		WS_BORDER | WS_CHILD | WS_VSCROLL | SS_CENTER | SS_EDITCONTROL, // style
+		WS_BORDER | WS_CHILD | SS_CENTER | SS_EDITCONTROL, // style
 		(W_CENTER - 325),
 		120, // TODO: something cleaner
 		650,
@@ -1531,11 +1532,13 @@ void DrawSoE(HDC hdc, _In_ HWND   hWnd)
 	UpdateWindow(stepWnd);
 
 	HWND quizWnd = FindWindowExW(hWnd, stepWnd, NULL, NULL);
+	EnableWindow(quizWnd, false); // TODO: remove when functionality for this window is created.
 	ShowWindow(quizWnd, // window handle
 		SW_NORMAL);
 	UpdateWindow(quizWnd);
 
 	HWND genWnd = FindWindowExW(hWnd, quizWnd, NULL, NULL);
+	EnableWindow(genWnd, false); // TODO: remove when functionality for this window is created.
 	ShowWindow(genWnd, // window handle
 		SW_NORMAL);
 	UpdateWindow(genWnd);
@@ -1676,7 +1679,7 @@ void CreateSoEWnds(HWND hWnd, _In_ int nCmdShow)
 		WS_EX_LEFT,
 		WC_STATIC,
 		CCsolution, // text in button
-		WS_BORDER | WS_CHILD | WS_VSCROLL | SS_CENTER, // style
+		WS_BORDER | WS_CHILD | SS_CENTER, // style
 		(W_CENTER - 325),
 		120, // TODO: something cleaner
 		650,
@@ -2121,6 +2124,38 @@ void HideStats(_In_ HWND   hWnd)
 }
 // END: stats
 
+// checks string for containing only valid characters. {numbers, x, y, =, +, -, /, *, (, )}
+bool ValidInput(const std::string* pInput, bool multitpleEQs = false)
+{
+	bool valid = true, wasXFound = false, wasYFound = false, wasEqFound = false; // TODO something more encompassing. 
+	int validCharSize = 20;
+	const char validChars[] = { ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'x', 'y', '=', '+', '-', '/', '*', '(', ')', ';'};
+	if (multitpleEQs) validCharSize = 21;
+	for (int i = 0; i < pInput->size(); i++)
+	{
+		bool inTheList = false;
+		for (int j = 0; j < validCharSize; j++)
+		{
+			if (pInput->at(i) == validChars[j])
+			{
+				if (validChars[j] == 'x') wasXFound = true;
+				else if (validChars[j] == 'y') wasYFound = true;
+				else if (validChars[j] == '=') wasEqFound = true;
+				inTheList = true;
+				break;
+			}
+		}
+		if (inTheList == false)
+		{
+			valid = false;
+			break;
+		}
+	}
+	if (wasXFound == false || wasYFound == false || wasEqFound == false) valid = false; // TODO yes it needs to actually check function integrety.
+	return valid;
+}
+
+
 // window-procedure function
 // handles event messages from windows
 // use this function to deal with user interation
@@ -2319,32 +2354,50 @@ LRESULT CALLBACK WndProc(
 					GetWindowTextW(eqWnd, solTCHAR, TCHAR_SMALL);
 					state->currentProblem.clear();
 					state->currentProblem.push_back("");
-					TCHAR2String(solTCHAR, TCHAR_SMALL, &(state->currentProblem[0]));
-					bool solved = false;
-					while (!solved)
+					std::string input = "";
+					TCHAR2String(solTCHAR, TCHAR_SMALL, &input);
+					if (ValidInput(&input))
 					{
-						solved = laStep(&state->currentProblem);
-						break; // used until laStep gets a full implementation.
+						state->currentProblem[0] = input;
+						bool solved = false;
+						while (!solved)
+						{
+							solved = laStep(&state->currentProblem);
+							break; // used until laStep gets a full implementation.
+						}
+						UpdateSolutionWnd(solWnd, &state->currentProblem);
 					}
-					UpdateSolutionWnd(solWnd, &state->currentProblem);
+					else
+					{
+						MessageBox(hWnd, L"Invalid equation. Make sure to only include the characters: space, x, y, +, -, *, /, =, (, ). You must include an x, y, and =.", L"CleverCalc", MB_OK);
+					}
+					
 				}
 				else if (button == stepWnd)
 				{
 					TCHAR solTCHAR[TCHAR_SMALL];
-					std::string inputWndText;
+					std::string input = "";
 					GetWindowTextW(eqWnd, solTCHAR, TCHAR_SMALL);
-					TCHAR2String(solTCHAR, TCHAR_SMALL, &inputWndText);
-					if (state->currentProblem.size() == 0)
+					TCHAR2String(solTCHAR, TCHAR_SMALL, &input);
+					if (ValidInput(&input))
 					{
-						state->currentProblem.push_back(inputWndText); // if there is no equation, fill the current problem
+						if (state->currentProblem.size() == 0)
+						{
+							state->currentProblem.push_back(input); // if there is no equation, fill the current problem
+						}
+						else if (input.compare(state->currentProblem[0]) != 0)
+						{
+							state->currentProblem.clear();
+							state->currentProblem.push_back(input);
+						} // if the equation changed, clear the current problem		
+						laStep(&state->currentProblem);
+						UpdateSolutionWnd(solWnd, &state->currentProblem);
+					} 
+					else
+					{
+						MessageBox(hWnd, L"Invalid equation. Make sure to only include the characters: space, x, y, +, -, *, /, =, (, ). You must include an x, y, and =.", L"CleverCalc", MB_OK);
 					}
-					else if (inputWndText.compare(state->currentProblem[0]) != 0)
-					{
-						state->currentProblem.clear();
-						state->currentProblem.push_back(inputWndText);
-					} // if the equation changed, clear the current problem		
-					laStep(&state->currentProblem);
-					UpdateSolutionWnd(solWnd, &state->currentProblem);
+					
 				}
 			}
 				break;
@@ -2366,6 +2419,57 @@ LRESULT CALLBACK WndProc(
 					state->currentPage = state->mainMenu;
 					HideSoE(hWnd);
 					InvalidateRgn(hWnd, NULL, TRUE); // cleans stuff up
+				}
+				else if (button == solveWnd)
+				{
+					TCHAR solTCHAR[TCHAR_SMALL];
+					GetWindowTextW(eqWnd, solTCHAR, TCHAR_SMALL);
+					state->currentProblem.clear();
+					state->currentProblem.push_back("");
+					std::string input = "";
+					TCHAR2String(solTCHAR, TCHAR_SMALL, &input);
+					if (ValidInput(&input, true))
+					{
+						state->currentProblem[0] = input;
+						bool solved = false;
+						while (!solved)
+						{
+							solved = laStep(&state->currentProblem);
+							break; // used until laStep gets a full implementation.
+						}
+						UpdateSolutionWnd(solWnd, &state->currentProblem);
+					}
+					else
+					{
+						MessageBox(hWnd, L"Invalid equation. Make sure to only include the characters: space, x, y, +, -, *, /, =, (, ), ;. You must include an x, y, and =.", L"CleverCalc", MB_OK);
+					}
+
+				}
+				else if (button == stepWnd)
+				{
+					TCHAR solTCHAR[TCHAR_SMALL];
+					std::string input = "";
+					GetWindowTextW(eqWnd, solTCHAR, TCHAR_SMALL);
+					TCHAR2String(solTCHAR, TCHAR_SMALL, &input);
+					if (ValidInput(&input, true))
+					{
+						if (state->currentProblem.size() == 0)
+						{
+							state->currentProblem.push_back(input); // if there is no equation, fill the current problem
+						}
+						else if (input.compare(state->currentProblem[0]) != 0)
+						{
+							state->currentProblem.clear();
+							state->currentProblem.push_back(input);
+						} // if the equation changed, clear the current problem		
+						laStep(&state->currentProblem);
+						UpdateSolutionWnd(solWnd, &state->currentProblem);
+					}
+					else
+					{
+						MessageBox(hWnd, L"Invalid equation(s). Make sure to only include the characters: space, x, y, +, -, *, /, =, (, ), ;. You must include an x, y, and =.", L"CleverCalc", MB_OK);
+					}
+
 				}
 			}
 				break;
