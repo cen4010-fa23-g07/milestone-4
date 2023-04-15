@@ -82,6 +82,14 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 						int j = k + 1;
 						while (current_match_type != next_match_type && j < token_eq.size()) {
 							
+							/*if (current_match == j) {
+								cout << "current match vs j " << current_match << " vs " << j << endl;
+								j++;
+								next_match_type = label_eq[j];
+								continue;
+							}*/
+
+
 							cout << "current match " << current_match << " " << token_eq[current_match] << endl;
 							cout << current_match_type << " vs " << next_match_type << endl;
 							//cout << "next match " << next_match << " " << token_eq[next_match] << endl;
@@ -96,12 +104,24 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 							if (j >= token_eq.size() - 1 && wrap_around == false) {
 								// test end value
 								if (current_match_type == label_eq[token_eq.size() - 1]) {
+									cout << "end match type is " << label_eq[j] << endl;
 									next_match_type = label_eq[j];
 									continue;
 								}
 								// wrap around
 								cout << "wrapped" << endl;
-								j = 0;
+								if (current_match != 0) {
+									j = 0;
+								}
+								else {
+									current_match = k + 1;
+									current_match_type = label_eq[k + 1];
+									wrap_around2 = true;
+									j = 0;
+									next_match_type = label_eq[j];
+									continue;
+								}
+								
 								wrap_around = true;
 								next_match_type = label_eq[j];
 								cout << "end wrap" << endl;
@@ -258,7 +278,7 @@ vector<string> create_new_labels(vector<string> token_eq) {
 int main()
 {
 	
-	string orig_eq = "13x + 2 = 5";
+	string orig_eq = "5 = 13x + 2";
 	char delim = ' ';
 	stringstream ss(orig_eq);
 
