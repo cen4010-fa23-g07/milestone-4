@@ -54,7 +54,7 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 			}
 
 			if (second_round) {
-				cout << "second round" << endl;
+				//cout << "second round" << endl;
 				int next_match;
 				int current_match;
 				string current_match_type;
@@ -62,20 +62,20 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 				bool wrap_around = false;
 				bool wrap_around2 = false;
 
-				cout << "token eq is ";
+				/*cout << "token eq is ";
 				for (int k = 0; k < token_eq.size(); k++) {
 					cout << token_eq[k] << " ";
 				}
-				cout << endl;
+				cout << endl;*/
 
 				for (int k = 0; k < token_eq.size(); k++) {
-					cout << "size is " << token_eq.size() << endl;
+					//cout << "size is " << token_eq.size() << endl;
 					// if var +/- const or vice versa
 					if (label_eq[k] == "+op" || label_eq[k] == "-op") {
 					
-						cout << "i is " << k << endl;
+						//cout << "i is " << k << endl;
 						current_match = k - 1;
-						cout << "current match " << current_match << " " << token_eq[current_match] << endl;
+						//cout << "current match " << current_match << " " << token_eq[current_match] << endl;
 
 						current_match_type = label_eq[k - 1];
 						next_match_type = label_eq[k + 1];
@@ -90,11 +90,11 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 							}*/
 
 
-							cout << "current match " << current_match << " " << token_eq[current_match] << endl;
+							//cout << "current match " << current_match << " " << token_eq[current_match] << endl;
 							cout << current_match_type << " vs " << next_match_type << endl;
 							//cout << "next match " << next_match << " " << token_eq[next_match] << endl;
 
-							cout << "j is " << j << endl;
+							//cout << "j is " << j << endl;
 							
 							
 							
@@ -104,12 +104,12 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 							if (j >= token_eq.size() - 1 && wrap_around == false) {
 								// test end value
 								if (current_match_type == label_eq[token_eq.size() - 1]) {
-									cout << "end match type is " << label_eq[j] << endl;
+									//cout << "end match type is " << label_eq[j] << endl;
 									next_match_type = label_eq[j];
 									continue;
 								}
 								// wrap around
-								cout << "wrapped" << endl;
+								//cout << "wrapped" << endl;
 								if (current_match != 0) {
 									j = 0;
 								}
@@ -124,11 +124,11 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 								
 								wrap_around = true;
 								next_match_type = label_eq[j];
-								cout << "end wrap" << endl;
+								//cout << "end wrap" << endl;
 								continue;
 							}
 							else if (j == current_match && wrap_around == true && !wrap_around2) {
-								cout << "inc" << endl;
+								//cout << "inc" << endl;
 								current_match = k + 1;
 								current_match_type = label_eq[k + 1];
 								wrap_around2 = true;
@@ -140,7 +140,7 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 
 							
 							if (current_match == j) {
-								cout << "current match vs j " << current_match << " vs " << j << endl;
+								//cout << "current match vs j " << current_match << " vs " << j << endl;
 								j++;
 								next_match_type = label_eq[j];
 								continue;
@@ -151,18 +151,21 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 						//j++;
 						next_match = j;
 
-						cout << "current match " << current_match << " " << token_eq[current_match] << endl;
-						cout << "next match " << next_match << endl;
+						//cout << "current match " << current_match << " " << token_eq[current_match] << endl;
+						//cout << "next match " << next_match << endl;
 
 						float el1 = stof(token_eq[current_match]);
 						float el2 = stof(token_eq[next_match]);
 						if (next_match == token_eq.size() - 1 || current_match > next_match) {
-							cout << "current > next" << endl;
+							//cout << "current > next" << endl;
 							el2 -= el1;
 							// replace el2
 							string el2_str = to_string(el2);
+							if (label_eq[current_match] == "var") {
+								el2_str += "x";
+							}
 							token_eq[next_match] = el2_str;
-							cout << "going to erase" << endl;
+							//cout << "going to erase" << endl;
 							// erase el1 and the op to the left of it
 							if (next_match == token_eq.size() - 1) {
 								token_eq.erase(token_eq.begin() + current_match);
@@ -172,17 +175,29 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 								token_eq.erase(token_eq.begin() + current_match - 1);
 								token_eq.erase(token_eq.begin() + current_match - 1);
 							}
+							// not permanent
+							if (token_eq.size() == 3) {
+								token_eq[1] = "=";
+							}
 							return token_eq;
 						}
 						else {
-							cout << "el1 is " << el1 << endl;
-							cout << "el2 is " << el2 << endl;
+							//cout << "el1 is " << el1 << endl;
+							//cout << "el2 is " << el2 << endl;
 							el1 -= el2;
-							cout << "el1 is " << el1 << endl;
+							//cout << "el1 is " << el1 << endl;
 							// replace el1
 							string el1_str = to_string(el1);
+							if (label_eq[next_match] == "var") {
+								el1_str += "x";
+							}
+							token_eq[current_match] = el1_str;
 							token_eq.erase(token_eq.begin() + next_match);
 							token_eq.erase(token_eq.begin() + next_match);
+							// not permanent
+							if (token_eq.size() == 3) {
+								token_eq[1] = "=";
+							}
 							return token_eq;
 						}
 						
@@ -278,7 +293,7 @@ vector<string> create_new_labels(vector<string> token_eq) {
 int main()
 {
 	
-	string orig_eq = "5 = 13x + 2";
+	string orig_eq = "3 + 2x = 5x";
 	char delim = ' ';
 	stringstream ss(orig_eq);
 
