@@ -17,16 +17,12 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 	int step_position;
 	string step_type;
 	string step_result;
+	bool second_round = false;
 
 	bool step_completed = false;
 	while (!step_completed) {
 		for (int i = 0; i < token_eq.size(); i++) {
-			//cout << "got to for " << endl;
-			//cout << "i is " << i << endl;
-			//cout << "label eq size is " << label_eq.size() << endl;
-			//cout << "label is " << label_eq[i] << endl;
-			if (label_eq[i].find("+") != string::npos || label_eq[i].find("-") != string::npos) {
-				//cout << "entered +" << endl;
+			if (label_eq[i] == "+op" || label_eq[i] == "-op") {
 				// if const + const or var + var
 				if (label_eq[i - 1] == label_eq[i + 1]) {
 					float el1 = stof(token_eq[i - 1]);
@@ -46,13 +42,133 @@ vector<string> step(vector<string> token_eq, vector<string> label_eq) {
 						step_result += "x";
 					}
 					step_position = i;
-					
 					step_completed = true;
 					break;
 				}
 				
-			} // end of +op
-			//cout << "after +" << endl;
+			} // end of +/-op
+
+			if (i == token_eq.size() - 1 && label_eq.size() != 3 && second_round == false) {
+				cout << "entered if " << endl;
+				second_round = true;
+			}
+
+			if (second_round) {
+				cout << "second round" << endl;
+				int next_match;
+				int current_match;
+				string current_match_type;
+				string next_match_type;
+				bool wrap_around = false;
+				bool wrap_around2 = false;
+
+				cout << "token eq is ";
+				for (int k = 0; k < token_eq.size(); k++) {
+					cout << token_eq[k] << " ";
+				}
+				cout << endl;
+
+				for (int k = 0; k < token_eq.size(); k++) {
+					cout << "size is " << token_eq.size() << endl;
+					// if var +/- const or vice versa
+					if (label_eq[k] == "+op" || label_eq[k] == "-op") {
+					
+						cout << "i is " << k << endl;
+						current_match = k - 1;
+						cout << "current match " << current_match << " " << token_eq[current_match] << endl;
+
+						current_match_type = label_eq[k - 1];
+						next_match_type = label_eq[k + 1];
+						int j = k + 1;
+						while (current_match_type != next_match_type && j < token_eq.size()) {
+							
+							cout << "current match " << current_match << " " << token_eq[current_match] << endl;
+							cout << current_match_type << " vs " << next_match_type << endl;
+							//cout << "next match " << next_match << " " << token_eq[next_match] << endl;
+
+							cout << "j is " << j << endl;
+							
+							
+							
+							next_match_type = label_eq[j];
+							j++;
+
+							if (j >= token_eq.size() - 1 && wrap_around == false) {
+								// test end value
+								if (current_match_type == label_eq[token_eq.size() - 1]) {
+									next_match_type = label_eq[j];
+									continue;
+								}
+								// wrap around
+								cout << "wrapped" << endl;
+								j = 0;
+								wrap_around = true;
+								next_match_type = label_eq[j];
+								cout << "end wrap" << endl;
+								continue;
+							}
+							else if (j == current_match && wrap_around == true && !wrap_around2) {
+								cout << "inc" << endl;
+								current_match = k + 1;
+								current_match_type = label_eq[k + 1];
+								wrap_around2 = true;
+								wrap_around = false;
+								j = 0;
+								next_match_type = label_eq[j];
+								break;
+							}
+
+							
+							if (current_match == j) {
+								cout << "current match vs j " << current_match << " vs " << j << endl;
+								j++;
+								next_match_type = label_eq[j];
+								continue;
+							}
+							
+						}
+
+						//j++;
+						next_match = j;
+
+						cout << "current match " << current_match << " " << token_eq[current_match] << endl;
+						cout << "next match " << next_match << endl;
+
+						float el1 = stof(token_eq[current_match]);
+						float el2 = stof(token_eq[next_match]);
+						if (next_match == token_eq.size() - 1 || current_match > next_match) {
+							cout << "current > next" << endl;
+							el2 -= el1;
+							// replace el2
+							string el2_str = to_string(el2);
+							token_eq[next_match] = el2_str;
+							cout << "going to erase" << endl;
+							// erase el1 and the op to the left of it
+							if (next_match == token_eq.size() - 1) {
+								token_eq.erase(token_eq.begin() + current_match);
+								token_eq.erase(token_eq.begin() + current_match);
+							}
+							else {
+								token_eq.erase(token_eq.begin() + current_match - 1);
+								token_eq.erase(token_eq.begin() + current_match - 1);
+							}
+							return token_eq;
+						}
+						else {
+							cout << "el1 is " << el1 << endl;
+							cout << "el2 is " << el2 << endl;
+							el1 -= el2;
+							cout << "el1 is " << el1 << endl;
+							// replace el1
+							string el1_str = to_string(el1);
+							token_eq.erase(token_eq.begin() + next_match);
+							token_eq.erase(token_eq.begin() + next_match);
+							return token_eq;
+						}
+						
+					}
+				}
+			} // end of second round
 			
 			// only need to solve now
 			if (label_eq.size() == 3) {
@@ -142,7 +258,7 @@ vector<string> create_new_labels(vector<string> token_eq) {
 int main()
 {
 	
-	string orig_eq = "12x - 16x = 15 + 15";
+	string orig_eq = "13x + 2 = 5";
 	char delim = ' ';
 	stringstream ss(orig_eq);
 
