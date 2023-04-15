@@ -8,7 +8,9 @@
 #include <windowsx.h> // windows such as buttons and input boxes
 #include <math.h> // this will help with the calculator functions.
 #include <vector> // for linear algebra and sys eq solvers.
-#include <string> // not stupid like tchar
+#include <string> // not silly like tchar
+#include <sstream>
+#include <iostream>
 
 // custom compenents
 
@@ -17,6 +19,13 @@ void string2TCHAR(std::string *, TCHAR *, const int); // string, output TCHAR, a
 
 // TCHAR to string
 void TCHAR2String(TCHAR*, const int, std::string*); // TCHAR, its size, and then output string
+
+
+// required for la_step
+std::vector<std::string> step(std::vector < std::string>, std::vector<std::string>);
+std::vector<std::string> create_new_eq(std::vector<std::string>, int, std::string, std::string);
+std::vector<std::string> create_new_labels(std::vector<std::string>);
+
 
 // la_step solves one step of a given solution vector<string>. returns true if its the last step.
 bool laStep(std::vector<std::string>* solution);

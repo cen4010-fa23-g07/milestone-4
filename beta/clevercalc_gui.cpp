@@ -1495,7 +1495,7 @@ void DrawSoE(HDC hdc, _In_ HWND   hWnd)
 	soeSolver.top = 45;
 	soeSolver.right = W_WIDTH;
 	soeSolver.bottom = 65;
-	TCHAR text_soeSolver[] = _T("Systems of Equations Solver:");
+	TCHAR text_soeSolver[] = _T("Systems of Equations Solver. Currently doesn\'t solve systems of equations, see the Linear Algebra solver.");
 	DrawTextExW( //https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-drawtextexw
 		hdc, // handle
 		text_soeSolver,// text
@@ -1674,7 +1674,7 @@ void CreateSoEWnds(HWND hWnd, _In_ int nCmdShow)
 		NULL
 	);
 
-	static TCHAR CCsolution[] = _T("Future Solution Window.");
+	static TCHAR CCsolution[] = _T("Solution Window.");
 	HWND solWnd = CreateWindowExW(
 		WS_EX_LEFT,
 		WC_STATIC,
@@ -2129,7 +2129,7 @@ bool ValidInput(const std::string* pInput, bool multitpleEQs = false)
 {
 	bool valid = true, wasXFound = false, wasYFound = false, wasEqFound = false; // TODO something more encompassing. 
 	int validCharSize = 20;
-	const char validChars[] = { ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'x', 'y', '=', '+', '-', '/', '*', '(', ')', ';'};
+	const char validChars[] = { ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'x', 'x', '=', '+', '-', '/', '*', '(', ')', ';'}; // there are two x's. this is because using y is currently not allowed.
 	if (multitpleEQs) validCharSize = 21;
 	for (int i = 0; i < pInput->size(); i++)
 	{
@@ -2151,7 +2151,7 @@ bool ValidInput(const std::string* pInput, bool multitpleEQs = false)
 			break;
 		}
 	}
-	if (wasXFound == false || wasYFound == false || wasEqFound == false) valid = false; // TODO yes it needs to actually check function integrety.
+	if (wasXFound == false || wasEqFound == false) valid = false; // TODO yes it needs to actually check function integrety.
 	return valid;
 }
 
@@ -2362,14 +2362,21 @@ LRESULT CALLBACK WndProc(
 						bool solved = false;
 						while (!solved)
 						{
-							solved = laStep(&state->currentProblem);
+							try
+							{
+								laStep(&state->currentProblem);
+							}
+							catch (const std::exception& e)
+							{
+								MessageBox(hWnd, L"Unfortunatly, your equation caused an error. This program is in beta, please be gentle.", L"CleverCalc", MB_OK);
+							}
 							break; // used until laStep gets a full implementation.
 						}
 						UpdateSolutionWnd(solWnd, &state->currentProblem);
 					}
 					else
 					{
-						MessageBox(hWnd, L"Invalid equation. Make sure to only include the characters: space, x, y, +, -, *, /, =, (, ). You must include an x, y, and =.", L"CleverCalc", MB_OK);
+						MessageBox(hWnd, L"Invalid equation(s). Make sure to only include variables x, +, -, numbers, and an equal sign. Curretnly doesn\'t solve every equation.", L"CleverCalc", MB_OK);
 					}
 					
 				}
@@ -2390,12 +2397,19 @@ LRESULT CALLBACK WndProc(
 							state->currentProblem.clear();
 							state->currentProblem.push_back(input);
 						} // if the equation changed, clear the current problem		
-						laStep(&state->currentProblem);
+						try
+						{
+							laStep(&state->currentProblem);
+						}
+						catch (const std::exception& e)
+						{
+							MessageBox(hWnd, L"Unfortunatly, your equation caused an error. This program is in beta, please be gentle.", L"CleverCalc", MB_OK);
+						}
 						UpdateSolutionWnd(solWnd, &state->currentProblem);
 					} 
 					else
 					{
-						MessageBox(hWnd, L"Invalid equation. Make sure to only include the characters: space, x, y, +, -, *, /, =, (, ). You must include an x, y, and =.", L"CleverCalc", MB_OK);
+						MessageBox(hWnd, L"Invalid equation(s). Make sure to only include variables x, +, -, numbers, and an equal sign. Curretnly doesn\'t solve every equation.", L"CleverCalc", MB_OK);
 					}
 					
 				}
@@ -2434,14 +2448,21 @@ LRESULT CALLBACK WndProc(
 						bool solved = false;
 						while (!solved)
 						{
-							solved = laStep(&state->currentProblem);
+							try
+							{
+								laStep(&state->currentProblem);
+							}
+							catch (const std::exception& e)
+							{
+								MessageBox(hWnd, L"Unfortunatly, your equation caused an error. This program is in beta, please be gentle.", L"CleverCalc", MB_OK);
+							}
 							break; // used until laStep gets a full implementation.
 						}
 						UpdateSolutionWnd(solWnd, &state->currentProblem);
 					}
 					else
 					{
-						MessageBox(hWnd, L"Invalid equation. Make sure to only include the characters: space, x, y, +, -, *, /, =, (, ), ;. You must include an x, y, and =.", L"CleverCalc", MB_OK);
+						MessageBox(hWnd, L"Invalid equation(s). Make sure to only include variables x, +, -, numbers, and an equal sign. Curretnly doesn\'t solve every equation.", L"CleverCalc", MB_OK);
 					}
 
 				}
@@ -2462,12 +2483,20 @@ LRESULT CALLBACK WndProc(
 							state->currentProblem.clear();
 							state->currentProblem.push_back(input);
 						} // if the equation changed, clear the current problem		
-						laStep(&state->currentProblem);
+						try 
+						{
+							laStep(&state->currentProblem);
+						}
+						catch (const std::exception& e)
+						{
+							MessageBox(hWnd, L"Unfortunatly, your equation caused an error. This program is in beta, please be gentle.", L"CleverCalc", MB_OK);
+						}
+						
 						UpdateSolutionWnd(solWnd, &state->currentProblem);
 					}
 					else
 					{
-						MessageBox(hWnd, L"Invalid equation(s). Make sure to only include the characters: space, x, y, +, -, *, /, =, (, ), ;. You must include an x, y, and =.", L"CleverCalc", MB_OK);
+						MessageBox(hWnd, L"Invalid equation(s). Make sure to only include variables x, +, -, numbers, and an equal sign. Curretnly doesn\'t solve every equation.", L"CleverCalc", MB_OK);
 					}
 
 				}
